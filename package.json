@@ -1,0 +1,25 @@
+{
+  "name": "crypto-lab-masked-core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:a11y": "playwright test --project=a11y",
+    "test:claims": "playwright test --project=claims",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.1.2",
+    "playwright": "^1.62.1",
+    "typescript": "~7.0.2",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
+  }
+}

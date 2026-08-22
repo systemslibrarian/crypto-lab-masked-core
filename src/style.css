@@ -1,0 +1,670 @@
+/*
+ * Masked Core — palette and components.
+ *
+ * Authored against §4.2's checklist rather than fixed afterwards:
+ *   - every text token is >= 4.5:1 on the surface it is used on, and muted text
+ *     lowers LIGHTNESS rather than using opacity;
+ *   - text on a coloured fill uses a dedicated ink token, never near-white on a
+ *     light accent;
+ *   - control boundaries use --control-border, which clears 3:1 against both
+ *     surfaces (WCAG 1.4.11); --border is decorative dividing only, and is
+ *     never the whole boundary of an interactive control;
+ *   - state is never colour alone: every verdict is icon + word + colour, and
+ *     every plotted series has a legend entry printing its number;
+ *   - base p / button rules are scoped to #app so they cannot fight the
+ *     always-dark shared top bar.
+ */
+
+:root {
+  --accent: #8ab4ff;
+  --accent-ink: #06101f;
+  --accent-dim: #5d8ede;
+
+  --bg: #0a0e17;
+  --surface: #121826;
+  --surface-2: #1a2233;
+  --surface-3: #222c42;
+
+  --border: #2c3850;
+  --control-border: #6f82a3;
+
+  --text: #e8eef8;
+  --text-dim: #c2cee2;
+  --text-muted: #96a6c2;
+
+  --ok: #4ade80;
+  --ok-text: #86efac;
+  --bad: #f87171;
+  --bad-text: #fca5a5;
+  --alarm: #fbbf24;
+  --alarm-text: #fcd34d;
+
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius: 10px;
+}
+
+/* The <html> element gets its own background-color LONGHAND — axe and WebKit
+   both miss the `background` shorthand here — plus an explicit color-scheme. */
+/*
+ * `[hidden]` must actually hide. The UA stylesheet's `[hidden] { display: none }`
+ * is a plain type-less rule, so ANY class rule that sets `display` outranks it
+ * and the element paints while the code believes it is hidden. That bit this
+ * page during development: `.field { display: flex }` kept the second-order
+ * controls on screen for attacks that do not use them, and the a11y gate would
+ * have scanned a state the code thought did not exist.
+ */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  background-color: var(--bg);
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+}
+
+#app {
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: 0 clamp(0.9rem, 3vw, 2rem) 3rem;
+}
+
+#app p {
+  margin: 0 0 0.75rem;
+}
+#app h2,
+#app h3,
+#app h4 {
+  line-height: 1.25;
+  margin: 0 0 0.5rem;
+}
+#app h2 {
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+}
+#app h3 {
+  font-size: 1.05rem;
+}
+#app h4 {
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+#app a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+#app code,
+#app .mono {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Hero (fleet standard) ────────────────────────────────────────────────── */
+
+.cl-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: clamp(1rem, 4vw, 3rem);
+  flex-wrap: wrap;
+  margin: clamp(1rem, 3vw, 2rem) 0 1.5rem;
+}
+.cl-hero-main {
+  flex: 1 1 22rem;
+  min-width: min(100%, 20rem);
+}
+.cl-hero-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 3.8vw, 2.7rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+.cl-hero-sub {
+  margin: 0.4rem 0 0;
+  font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+  letter-spacing: 0.01em;
+  color: var(--text-muted);
+}
+.cl-hero-desc {
+  margin: 0.55rem 0 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  max-width: 60ch;
+}
+.cl-hero-why {
+  flex: 0 1 min(40%, 26rem);
+  min-width: min(100%, 15rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1.05rem;
+  background: color-mix(in oklab, var(--accent) 6%, transparent);
+}
+.cl-hero-why-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+.cl-hero-why-text {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+@media (max-width: 640px) {
+  .cl-hero {
+    flex-direction: column;
+    /* WCAG 1.4.10. The hero keeps `align-items: flex-start` from the fleet
+       standard, which on the cross axis of a WRAPPING COLUMN container sizes
+       each child to its fit-content rather than to the container — and
+       fit-content there is computed against an unconstrained line, so the
+       subtitle's max-content (387px) pushed the whole page 21px wider than a
+       380px viewport. Stretching on the cross axis is the correct mobile
+       layout anyway: these blocks are full width once they stack. The
+       `flex-wrap: wrap` is what creates that line: wrapping a COLUMN with no
+       height constraint can only ever produce one line, but it lets that line's
+       cross size be the items' max-content instead of the container's width.
+       nowrap plus stretch removes both halves of the problem. `width: auto`
+       replaces the standard's `width: 100%` on the aside for the same reason —
+       100% resolved against the over-wide line, not against the container. */
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+  .cl-hero-main,
+  .cl-hero-why {
+    max-width: 100%;
+  }
+  .cl-hero-why {
+    flex-basis: auto;
+    width: auto;
+  }
+}
+
+/* ── The persistent model banner ──────────────────────────────────────────── */
+
+.model-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border: 1px solid var(--control-border);
+  border-left: 4px solid var(--alarm);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 0.7rem 0.95rem;
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+.model-banner .glyph {
+  color: var(--alarm-text);
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+.model-banner strong {
+  color: var(--text);
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1.1rem;
+}
+#app .tab-btn {
+  appearance: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 0.8rem;
+  min-height: 2.4rem;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  cursor: pointer;
+}
+/* Only an UNSELECTED tab repaints on hover.
+   The generic `#app button:hover:not(:disabled)` rule outranks a plain
+   `[aria-selected]` selector on specificity, so hovering the SELECTED tab used
+   to replace its accent fill with --surface-3 while leaving --accent-ink text
+   on top: near-black on dark, which the gate caught as a contrast violation on
+   `#tab-construction > span`. The selected rule therefore names :hover
+   explicitly so it wins in both states. */
+#app .tab-btn:hover:not([aria-selected='true']) {
+  background: var(--surface-3);
+  color: var(--text);
+}
+#app .tab-btn[aria-selected='true'],
+#app .tab-btn[aria-selected='true']:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+#app .tab-btn .tab-act {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  margin-right: 0.35rem;
+  opacity: 1;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  padding: clamp(0.9rem, 2.4vw, 1.4rem);
+}
+
+/* ── Cards, grids, controls ───────────────────────────────────────────────── */
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+}
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 0.9rem 1rem;
+}
+.card > h3:first-child,
+.card > h4:first-child {
+  margin-top: 0;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.1rem;
+  align-items: flex-end;
+  margin: 0 0 1rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.field > label,
+.group-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+input[type='text'],
+input[type='number'],
+select,
+textarea {
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  padding: 0.45rem 0.6rem;
+  min-height: 2.4rem;
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  background: var(--surface-3);
+  color: var(--text);
+}
+/* A styled select needs its own chevron once the native one is removed. */
+select {
+  appearance: none;
+  padding-right: 2rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-dim) 50%),
+    linear-gradient(135deg, var(--text-dim) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.05rem) 1.15rem,
+    calc(100% - 0.72rem) 1.15rem;
+  background-size:
+    0.35rem 0.35rem,
+    0.35rem 0.35rem;
+  background-repeat: no-repeat;
+}
+input[aria-invalid='true'],
+select[aria-invalid='true'] {
+  border-color: var(--bad);
+}
+input[type='range'] {
+  accent-color: var(--accent);
+  min-height: 2.4rem;
+}
+
+#app button {
+  appearance: none;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+  min-height: 2.4rem;
+  border-radius: 8px;
+  border: 1px solid var(--control-border);
+  background: var(--surface-3);
+  color: var(--text);
+  cursor: pointer;
+}
+#app button:hover:not(:disabled) {
+  background: var(--surface-3);
+  border-color: var(--accent);
+}
+#app button:disabled {
+  cursor: not-allowed;
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+#app button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+#app button.primary:hover:not(:disabled) {
+  background: var(--accent-dim);
+  border-color: var(--accent-dim);
+  color: var(--accent-ink);
+}
+#app button.primary:disabled {
+  background: var(--surface-3);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+#app .seg-btn {
+  font-size: 0.82rem;
+  padding: 0.42rem 0.7rem;
+}
+/* Same trap as the tabs above: hovering a PRESSED segment button would
+   otherwise drop the accent fill and leave --accent-ink on --surface-3. */
+#app .seg-btn[aria-pressed='true'],
+#app .seg-btn[aria-pressed='true']:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.9rem 0 0;
+}
+
+/* ── Verdicts. Icon + word + colour, never colour alone. ──────────────────── */
+
+.verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  border: 1px solid;
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  margin: 0.9rem 0 0;
+  font-size: 0.95rem;
+}
+.verdict .glyph {
+  font-weight: 700;
+  flex: 0 0 auto;
+  font-family: var(--mono);
+}
+.verdict .verdict-label {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.verdict-pass {
+  border-color: var(--ok);
+  background: color-mix(in oklab, var(--ok) 10%, var(--surface-2));
+  color: var(--text);
+}
+.verdict-pass .glyph,
+.verdict-pass .verdict-label {
+  color: var(--ok-text);
+}
+.verdict-fail {
+  border-color: var(--bad);
+  background: color-mix(in oklab, var(--bad) 10%, var(--surface-2));
+  color: var(--text);
+}
+.verdict-fail .glyph,
+.verdict-fail .verdict-label {
+  color: var(--bad-text);
+}
+.verdict-alarm {
+  border-color: var(--alarm);
+  background: color-mix(in oklab, var(--alarm) 10%, var(--surface-2));
+  color: var(--text);
+}
+.verdict-alarm .glyph,
+.verdict-alarm .verdict-label {
+  color: var(--alarm-text);
+}
+.verdict-info {
+  border-color: var(--control-border);
+  background: var(--surface-2);
+  color: var(--text-dim);
+}
+.verdict-info .glyph,
+.verdict-info .verdict-label {
+  color: var(--accent);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--control-border);
+  background: var(--surface-3);
+  color: var(--text-dim);
+}
+.pill-ok {
+  border-color: var(--ok);
+  color: var(--ok-text);
+}
+.pill-bad {
+  border-color: var(--bad);
+  color: var(--bad-text);
+}
+.pill-alarm {
+  border-color: var(--alarm);
+  color: var(--alarm-text);
+}
+
+/* ── Readouts and tables ──────────────────────────────────────────────────── */
+
+.kv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.3rem 0.9rem;
+  font-size: 0.9rem;
+  margin: 0.6rem 0 0;
+}
+.kv dt {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.kv dd {
+  margin: 0;
+  font-family: var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0.8rem 0 0;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.86rem;
+}
+th,
+td {
+  text-align: left;
+  padding: 0.42rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+th {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+td.num,
+th.num {
+  font-family: var(--mono);
+  text-align: right;
+}
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+tr.is-true-key td {
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+/* ── Charts ───────────────────────────────────────────────────────────────── */
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.legend .swatch {
+  width: 1.5rem;
+  height: 0;
+  border-top-width: 3px;
+  border-top-style: solid;
+  flex: 0 0 auto;
+}
+.legend .value {
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+/* ── Disclosure ───────────────────────────────────────────────────────────── */
+
+details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  margin: 0.8rem 0 0;
+}
+summary {
+  cursor: pointer;
+  padding: 0.6rem 0.9rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+summary::marker {
+  color: var(--accent);
+}
+details > *:not(summary) {
+  padding: 0 0.9rem 0.9rem;
+  margin-top: 0;
+}
+details .derivation {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  overflow-x: auto;
+}
+
+.note {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  margin: 0.5rem 0 0;
+}
+.lede {
+  font-size: 1.02rem;
+  color: var(--text-dim);
+  max-width: 68ch;
+}
+.scope-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+.scope-list li {
+  margin: 0 0 0.45rem;
+}
+
+.busy {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-family: var(--mono);
+}
+
+/* ── Scripture footer ─────────────────────────────────────────────────────── */
+
+.scripture-footer {
+  max-width: 78rem;
+  margin: 2.5rem auto 0;
+  padding: 1.2rem clamp(0.9rem, 3vw, 2rem) 2rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  text-align: center;
+}
+.scripture-footer p {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
