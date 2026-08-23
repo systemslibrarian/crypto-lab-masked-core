@@ -15,6 +15,18 @@
  *     always-dark shared top bar.
  */
 
+/* Border-box everywhere. Without it, `.cl-hero-why`'s `min-width: min(100%, 15rem)`
+   is a floor on its CONTENT box, so the aside renders that floor plus its own
+   0.85rem/1.05rem padding and 1px borders — 36px wider than the hero can give
+   it, in every state on the page rather than in one panel. This lab was the
+   only one of the ten in its batch shipping no box-sizing reset at all, which
+   is why its reflow floor sat 34px above its siblings'. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
   --accent: #8ab4ff;
   --accent-ink: #06101f;
