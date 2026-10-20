@@ -157,6 +157,8 @@ countermeasure stops protecting anything.
   recombine shares the probing model treats as separate; imperfect randomness short of a
   frozen mask; and masking orders above one.
 
+- **A negative leakage test is not a security guarantee.** [Buschkowski, Höher and Güneysu, *Sparse Secrets, Dense Problems*, ePrint 2026/2509 (17 October 2026; preprint)](https://eprint.iacr.org/2026/2509) report a profiled horizontal attack on a masked HQC FPGA multiplier. With 200 traces it locates secret nonzero positions within ±8 places, despite TVLA (test-vector leakage assessment) detecting no leakage after 10 million traces. This approximate position recovery does not establish complete key recovery or a mathematical break of HQC. The authors also add hiding countermeasures. The Scope tab links this example to the model's limitations: it requires profiled hardware measurements, while this AES lab uses simulated traces and does not implement HQC, reproduce the FPGA attack, or establish hardware resistance.
+
 ## Real-World Usage
 
 Boolean masking is the mainstream software countermeasure against differential power

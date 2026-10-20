@@ -130,6 +130,31 @@ export function renderScope(root: HTMLElement): void {
     ),
     el(
       'div',
+      { class: 'card', id: 'hqc-hardware-evidence' },
+      el('h3', { text: 'A negative leakage test is not a security guarantee' }),
+      el(
+        'p',
+        {},
+        el('a', {
+          href: 'https://eprint.iacr.org/2026/2509',
+          text: 'Buschkowski, Höher and Güneysu, Sparse Secrets, Dense Problems (17 October 2026; preprint)',
+        }),
+        ' report a profiled horizontal side-channel attack on a masked HQC FPGA multiplier: ' +
+          '200 traces locate secret nonzero positions within ±8 places, although test-vector ' +
+          'leakage assessment (TVLA) detected no leakage after 10 million traces. ' +
+          'This is approximate position recovery, not a demonstrated complete key recovery or ' +
+          'a mathematical break of HQC. The authors also add hiding countermeasures.'
+      ),
+      el(
+        'p',
+        {},
+        'Masking guarantees depend on the model. This result requires profiled hardware measurements; ' +
+          'this AES lab uses simulated traces and does not implement HQC, reproduce the FPGA attack, ' +
+          'or establish hardware resistance.'
+      )
+    ),
+    el(
+      'div',
       { class: 'card' },
       el('h3', { text: 'What this page does NOT prove' }),
       el(
