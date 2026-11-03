@@ -46,7 +46,9 @@ Everything cryptographic is hand-rolled so it can be read:
 **Security model.** The classical first-order probing model with a Hamming-weight leakage
 function: power tracks the number of 1-bits in one register at a time, plus independent
 Gaussian noise. That is the model in which first-order Boolean masking is provably secure,
-and it is the model in which everything here is measured. It is an idealisation, stated
+and it is the model used by the AES trace bench. The Scope tab also includes a separate
+exact four-share bit-distribution example with joint observation and discrete noise.
+The AES model is an idealisation, stated
 persistently on the page rather than buried — see [What Can Go Wrong](#what-can-go-wrong).
 
 ### The mathematics, in three identities
@@ -95,7 +97,13 @@ disclosures so a newcomer can skip them and an expert can check them.
    between orders, and a button that reproduces any claim in your browser on the same
    schedule the band was recorded against.
 6. **Scope (Act 5)** — the leakage model stated plainly, the glitch note, and the list of
-   things this page does not prove.
+   things this page does not prove. An exact synthetic comparison lets you inspect two
+   four-share Hamming-weight distributions with identical first three raw moments:
+   `[1,0,6,0,1]/8` versus `[0,4,0,4,0]/8`. Their fourth moments differ (44 versus 41).
+   Switch the statistic, add independent centered binomial noise, or use the identical-secret
+   control. This observes a joint share sum, outside the one-register AES model, and is
+   neither sampled TVLA nor hardware leakage or key recovery. It is motivated by
+   [Moos, TCHES 2019, pp. 216–221](https://doi.org/10.13154/tches.v2019.i3.202-232).
 
 ## When to Use It
 

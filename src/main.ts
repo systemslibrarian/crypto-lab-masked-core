@@ -74,10 +74,10 @@ function modelBanner(): HTMLElement {
       'p',
       {},
       el('strong', { text: 'Idealised leakage model. ' }),
-      'Every measurement on this page assumes power tracks the Hamming weight of one register at a ' +
+      'The AES trace bench assumes power tracks the Hamming weight of one register at a ' +
         'time, plus Gaussian noise, and the traces are simulated from the real ciphers rather than ' +
         'captured from silicon. Real masked hardware also leaks through glitches, transitions and ' +
-        'coupling, which are not modelled here — see the Scope tab. Not production crypto; a teaching ' +
+        'coupling, which are not modelled here. The Scope tab also has a separate exact joint-share distribution model. Not production crypto; a teaching ' +
         'demo.'
     )
   );
