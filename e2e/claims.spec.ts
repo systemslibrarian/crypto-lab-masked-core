@@ -30,6 +30,34 @@ import { HW } from '../src/leakage/model';
 
 const BENCH = '#panel-bench';
 
+test('exact distribution lesson exposes the blind summaries and preserves its controls', async ({ page }) => {
+  await page.goto('.');
+  await page.getByRole('tab', { name: /Scope/ }).click();
+  await expect(page.locator('#moments-a li')).toHaveCount(5);
+  await expect(page.locator('#moments-a li').nth(2)).toContainText('75.000%');
+  await expect(page.locator('#moments-b li').nth(1)).toContainText('50.000%');
+  await expect(page.locator('#moments-decision')).toContainText('Matching summary, different distributions');
+  await expect(page.locator('#moments-decision')).toContainText('distance = 1.000000');
+  for (const k of ['1', '2', '3']) {
+    await page.selectOption('#moments-statistic', k);
+    await expect(page.locator('#moments-decision')).toContainText('Matching summary');
+  }
+  await page.selectOption('#moments-statistic', '4');
+  await expect(page.locator('#moments-decision')).toContainText('A = 44, B = 41');
+  await expect(page.locator('#moments-decision')).toContainText('This summary distinguishes');
+  await page.selectOption('#moments-noise', '8');
+  await expect(page.locator('#moments-a li')).toHaveCount(13);
+  await expect(page.locator('#moments-decision')).not.toContainText('distance = 1.000000');
+  await page.selectOption('#moments-comparison', '0');
+  await expect(page.locator('#moments-decision')).toContainText('Same-distribution control');
+  expect(await page.locator('#moments-a li').allTextContents()).toEqual(await page.locator('#moments-b li').allTextContents());
+  await page.getByRole('button', { name: 'Reset comparison' }).click();
+  await expect(page.locator('#moments-comparison')).toHaveValue('1');
+  await expect(page.locator('#moments-noise')).toHaveValue('0');
+  await expect(page.locator('#moments-statistic')).toHaveValue('1');
+  await expect(page.locator('#moments-decision')).toContainText('Matching summary');
+});
+
 async function open(page: Page, tab: RegExp): Promise<void> {
   await page.getByRole('tab', { name: tab }).click();
   await expect(page.getByRole('tab', { name: tab })).toHaveAttribute('aria-selected', 'true');

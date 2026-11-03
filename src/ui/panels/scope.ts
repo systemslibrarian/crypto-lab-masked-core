@@ -12,6 +12,7 @@ import { COST_RATIO_FLOOR, FIXTURE, FROZEN_FIXTURE, OUT_OF_MODEL } from '../../c
 import { LEAK_AMP, NUM_SAMPLES } from '../../leakage/traces';
 import { el, replace, verdict } from '../dom';
 import { hexByte } from '../format';
+import { renderMomentComparison } from './moments';
 
 export function renderScope(root: HTMLElement): void {
   const outOfModel = el('ul', { class: 'scope-list', role: 'list' });
@@ -74,7 +75,7 @@ export function renderScope(root: HTMLElement): void {
               'computation and a fabricated result.'
           ),
           el('li', { role: 'listitem' },
-            'The randomness. Masks and noise both come from a seeded mulberry32, so every claim here is ' +
+            'The AES bench’s randomness. Masks and noise both come from a seeded mulberry32, so its claims are ' +
               'reproducible. A real masked implementation must draw masks from a cryptographic generator.'
           )
         )
@@ -87,11 +88,11 @@ export function renderScope(root: HTMLElement): void {
       el(
         'p',
         {},
-        'Every measurement on this page assumes power draw tracks the HAMMING WEIGHT of the value in a ' +
+        'The AES trace bench assumes power draw tracks the HAMMING WEIGHT of the value in a ' +
           'register, plus independent Gaussian noise, and that a probe sees one register at a time. That ' +
           'is the classical first-order probing model with a Hamming-weight leakage function. It is the ' +
           'model in which first-order Boolean masking is provably secure, and it is the model in which ' +
-          'this page measures everything.'
+          'the AES bench uses. The exact four-share example below uses a separate joint observation with discrete noise.'
       ),
       el(
         'p',
@@ -181,8 +182,8 @@ export function renderScope(root: HTMLElement): void {
             'What transfers is the shape: the ratio between orders, and the fact that the ratio is finite.'
         ),
         el('li', { role: 'listitem' },
-          'Anything about masking orders above one. Only first-order masking is implemented, so the ' +
-            'lab measures attack order 1 against attack order 2 and stops there.'
+          'Resistance of AES masking orders above one. The AES bench implements first-order masking ' +
+            'and compares attack orders 1 and 2. The separate four-share bit-distribution example below is not a higher-order masked AES implementation.'
         )
       )
     ),
@@ -213,4 +214,7 @@ export function renderScope(root: HTMLElement): void {
       )
     )
   );
+  const moments = el('section', { class: 'card', 'aria-labelledby': 'moment-distributions' });
+  root.appendChild(moments);
+  renderMomentComparison(moments);
 }

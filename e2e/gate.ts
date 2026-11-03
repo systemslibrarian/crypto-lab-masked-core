@@ -943,6 +943,16 @@ export async function driveAllStates(page: Page, theme: string): Promise<void> {
   await openTab(page, /Scope/, '#panel-scope');
   await scanAt('Scope: the real/simulated split, the glitch note and the does-not-prove list');
 
+  await page.selectOption('#moments-statistic', '4');
+  await scanAt('Scope: fourth moment reveals distinct distributions');
+  await page.selectOption('#moments-noise', '2');
+  await scanAt('Scope: two independent noise bits');
+  await page.selectOption('#moments-noise', '8');
+  await page.selectOption('#moments-comparison', '0');
+  await scanAt('Scope: identical-secret control with eight noise bits');
+  await page.getByRole('button', { name: 'Reset comparison' }).click();
+  await scanAt('Scope: exact distribution comparison reset');
+
   await page.locator('#panel-scope details > summary').click();
   await expect(page.locator('#panel-scope details[open]')).toHaveCount(1);
   await scanAt('Scope: the how-claims-are-checked disclosure open');
