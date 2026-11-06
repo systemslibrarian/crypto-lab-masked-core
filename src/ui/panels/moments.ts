@@ -72,7 +72,7 @@ export function renderMomentComparison(root: HTMLElement): void {
       'With finite measurements a test may miss a difference: report “not detected,” not “secure.” This comparison is secret 0 versus secret 1, not fixed-versus-random TVLA.'),
     el('p', { class: 'note' }, 'Research credit: Thorben Moos, ',
       el('a', { href: 'https://doi.org/10.13154/tches.v2019.i3.202-232', text: 'Static Power SCA of Sub-100 nm CMOS ASICs and the Insecurity of Masking Schemes in Low-Noise Environments' }),
-      ' (TCHES 2019), pp. 216–221. The paper motivates comparing distributions with selected moments. ' +
+      ' (TCHES 2019), pp. 216–221. The paper shows that a moment-based t-test can report a false negative, and motivates comparing full distributions rather than a single moment. ' +
       'These four-share distributions are an independently derived teaching example, not the paper’s ASIC traces or a reproduction of its attack.')
   );
   render();
