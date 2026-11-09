@@ -205,7 +205,7 @@ npm run test:claims    # the claims suite: does the page tell the truth?
 - **[Power Trace](https://github.com/systemslibrarian/crypto-lab-power-trace)** — the
   unprotected side of this story, and the origin of the CPA/DPA machinery reused here.
   Start there if correlation power analysis is new to you.
-- **[Timing Side-Channel](https://github.com/systemslibrarian/crypto-lab-timing-side-channel)**
+- **[Timing Side-Channel](https://github.com/systemslibrarian/crypto-lab-timing-sidechannel)**
   and **[Timing Oracle](https://github.com/systemslibrarian/crypto-lab-timing-oracle)** —
   the other classical channel, and a countermeasure (constant-time compare) taught as part
   of the fix rather than as the subject.
