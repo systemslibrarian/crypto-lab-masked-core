@@ -24,9 +24,9 @@ import {
 
 describe('GF(2^8) arithmetic', () => {
   it('multiplies per the AES polynomial', () => {
-    // FIPS-197 4.2 worked example: {57} * {83} = {c1}.
+    // FIPS-197 (2001) 4.2 worked example: {57} * {83} = {c1}.
     expect(gmul(0x57, 0x83)).toBe(0xc1);
-    // 4.2.1: xtime chain 57 -> ae -> 47 -> 8e (each is a reduction step).
+    // 4.2.1 (2001 edition): xtime chain 57 -> ae -> 47 -> 8e (each is a reduction step).
     expect(gmul(0x57, 0x02)).toBe(0xae);
     expect(gmul(0xae, 0x02)).toBe(0x47);
     expect(gmul(0x47, 0x02)).toBe(0x8e);
@@ -38,7 +38,7 @@ describe('GF(2^8) arithmetic', () => {
   });
 });
 
-describe('S-box (KAT: FIPS-197 Figure 7)', () => {
+describe('S-box (KAT: FIPS-197 (2001) Figure 7)', () => {
   it('the derivation reproduces the published table byte for byte', () => {
     expect(bytesToHex(deriveSbox())).toBe(FIPS197_SBOX_HEX);
   });

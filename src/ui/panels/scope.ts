@@ -40,7 +40,7 @@ export function renderScope(root: HTMLElement): void {
           el('li', { role: 'listitem' },
             'AES-128 to FIPS-197, hand-rolled — the S-box is derived from the multiplicative inverse in ' +
               'GF(2^8) plus the affine transform, not pasted in as a table, and the derivation is checked ' +
-              'against the published Figure 7 byte for byte.'
+              'against the published Figure 7 of FIPS-197 (2001) byte for byte.'
           ),
           el('li', { role: 'listitem' },
             `First-order Boolean masking with per-round S-box table recomputation, verified to reproduce ` +
@@ -207,7 +207,7 @@ export function renderScope(root: HTMLElement): void {
         el(
           'p',
           {},
-          'The known-answer vectors come from FIPS-197 (Appendix A.1, B, C.1 and the Figure 7 S-box) and ' +
+          'The known-answer vectors come from the 2001 edition of FIPS-197 (Appendix A.1, B, C.1 and the Figure 7 S-box) and ' +
             'NIST SP 800-38A Appendix F.1.1. They are copied from the standards, which is the only thing ' +
             'that makes them a test rather than a restatement of this code.'
         )

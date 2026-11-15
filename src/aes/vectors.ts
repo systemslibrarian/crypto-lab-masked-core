@@ -4,11 +4,14 @@
  * rather than a tautology.
  *
  * Sources:
- *   FIPS-197  (Advanced Encryption Standard), Figure 7, Appendix A.1, B, C.1
+ *   FIPS-197  (Advanced Encryption Standard, 2001 edition), Figure 7, Appendix A.1, B, C.1
+ *             — Figure 7 and the Appendix C vectors are 2001 numbering: the 2023
+ *             update prints the S-box as Table 4 and its Appendix C points to
+ *             NIST's online examples instead.
  *   NIST SP 800-38A, Appendix F.1.1 (ECB-AES128.Encrypt)
  */
 
-/** FIPS-197 Figure 7 — the published S-box, to check the derivation against. */
+/** FIPS-197 (2001) Figure 7 — the published S-box, to check the derivation against. */
 export const FIPS197_SBOX_HEX =
   '637c777bf26b6fc53001672bfed7ab76' +
   'ca82c97dfa5947f0add4a2af9ca472c0' +
@@ -45,8 +48,8 @@ export const BLOCK_VECTORS: readonly BlockVector[] = [
     ciphertext: '3925841d02dc09fbdc118597196a0b32',
   },
   {
-    name: 'FIPS-197 Appendix C.1',
-    source: 'FIPS-197 Appendix C.1 (AES-128)',
+    name: 'FIPS-197 (2001) Appendix C.1',
+    source: 'FIPS-197 (2001) Appendix C.1 (AES-128)',
     key: '000102030405060708090a0b0c0d0e0f',
     plaintext: '00112233445566778899aabbccddeeff',
     ciphertext: '69c4e0d86a7b0430d8cdb78070b4c55a',
