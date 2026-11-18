@@ -4,6 +4,7 @@ import { auditContrast, formatContrastFailures } from './contrast';
 import { auditControlNames, formatControlNameFailures } from './control-names';
 import { auditNonText } from './nontext';
 import { NONTEXT_BASELINE } from './nontext-baseline';
+import { assertThisLab } from './identity';
 
 export const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
@@ -271,7 +272,9 @@ export async function boot(page: Page, theme: 'dark' | 'light'): Promise<void> {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   // Seed the WRONG theme on purpose; the head script must overwrite it.
   await page.addInitScript(() => localStorage.setItem('theme', 'light'));
-  await page.goto('.');
+  /* Not page.goto: a suite that navigates and starts asserting cannot
+   * tell this lab's server from anyone else's. See e2e/identity.ts. */
+  await assertThisLab(page, '.');
   expect(
     await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches),
     'reduced-motion emulation must actually be in effect'
