@@ -19,11 +19,12 @@ Timing Side-Channel's constant-time compare, KEM Trap's key confirmation, Protoc
 Encrypt-then-MAC. What it has not done before is make a countermeasure the object under
 measurement and then break it.
 
-The construction is **first-order Boolean masking of AES-128**. Every intermediate `x` is
-carried as the pair `(x ^ m, m)` for a fresh random mask. AddRoundKey, ShiftRows and
-MixColumns are GF(2)-linear, so a mask passes straight through them; the S-box is not, so
-the implementation rebuilds a **masked S-box table** each round, `S'[a] = SBOX[a ^ mIn] ^ mOut`,
-and the unmasked value never exists in any register.
+The construction is **first-order Boolean masking of AES-128**. The AES state is
+carried as two shares `(x ^ m, m)`. ShiftRows and MixColumns are linear over GF(2)
+and operate on both shares. For a fixed round key, AddRoundKey is an affine translation.
+XOR the key into one share so that recombining gives the updated state. For the nonlinear
+substitution, the implementation rebuilds a **masked S-box table** each round, `S'[a] = SBOX[a ^ mIn] ^ mOut`,
+so the state lookup takes a masked input and returns a masked output. The model makes no claim about physical registers or the JavaScript engine.
 
 Everything cryptographic is hand-rolled so it can be read:
 

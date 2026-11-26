@@ -212,6 +212,24 @@ test.describe('The split — the mechanism, cross-checked', () => {
 });
 
 test.describe('Masked AES — the construction tells the truth', () => {
+  test('the round-key example updates exactly one of the two shares', async ({ page }) => {
+    await open(page, /Masked AES/);
+    const panel = page.locator('#panel-construction');
+    await expect(panel.locator('p.lede')).toContainText('into one share');
+    const explanation = panel.locator('details').filter({ hasText: 'Why the linear layers are free' });
+    await explanation.locator('summary').click();
+    const example = (await explanation.innerText()).match(
+      /shares (0x[0-9a-f]+) and (0x[0-9a-f]+) represent (0x[0-9a-f]+).*?key byte (0x[0-9a-f]+).*?shares are (0x[0-9a-f]+) and (0x[0-9a-f]+), which XOR to (0x[0-9a-f]+)/s
+    );
+    expect(example).toBeTruthy();
+    const [valueShare, mask, state, key, updatedShare, updatedMask, result] = example!.slice(1).map(Number);
+    expect(valueShare ^ mask).toBe(state);
+    expect(updatedShare).toBe(valueShare ^ key);
+    expect(updatedMask).toBe(mask);
+    expect(updatedShare ^ updatedMask).toBe(result);
+    expect(result).toBe(state ^ key);
+  });
+
   test('the unmasked output is the published ciphertext, and the masked state is not', async ({ page }) => {
     await open(page, /Masked AES/);
     const pt = await readout(page, '#con-run', 'Plaintext');

@@ -139,7 +139,7 @@ export function renderConstruction(root: HTMLElement): void {
         correct && matchesPlain ? 'Byte-for-byte identical.' : 'Ciphertext mismatch.',
         [
           correct && matchesPlain
-            ? `The masked implementation produced the published ciphertext, and the plain implementation produced the same thing. Note the row above it: the state actually sitting in memory before the final unmask is ${maskedHex.slice(0, 8)}…, which is not the ciphertext and not anything derivable from it without the mask.`
+            ? `Both implementations produced the published ciphertext. XOR the masked state with the accumulated mask, byte by byte, to check the output yourself.`
             : `The masked implementation did not reproduce the published ciphertext. The construction is broken.`,
         ]
       ),
@@ -234,10 +234,10 @@ export function renderConstruction(root: HTMLElement): void {
     el(
       'p',
       { class: 'lede' },
-      'Every intermediate is carried as a pair — the value XOR a mask, and the mask. ' +
-        'AddRoundKey, ShiftRows and MixColumns are all linear over GF(2), so they pass a mask ' +
-        'straight through: apply them to both halves and the pair still represents the same state. ' +
-        'The S-box is the one non-linear step, and it is where the whole cost of masking lands.'
+      'The AES state is split into the masked value and the mask. ShiftRows and MixColumns are ' +
+        'linear, so apply each operation to both shares. AddRoundKey XORs the fixed round key ' +
+        'into one share. Applying it to both would cancel the key when the shares recombine. ' +
+        'The nonlinear S-box uses a table rebuilt for the round’s input and output masks.'
     ),
     el(
       'div',
@@ -315,6 +315,8 @@ export function renderConstruction(root: HTMLElement): void {
           'MixColumns is a matrix multiply over GF(2^8) whose additions are XOR, so ' +
             'MixColumns(x XOR m) equals MixColumns(x) XOR MixColumns(m). ShiftRows is a permutation, ' +
             'and permuting the masked state and the mask identically preserves the pairing. ' +
+            'For example, the shares 0xf5 and 0xa6 represent 0x53. With key byte 0x3c, the updated ' +
+            'shares are 0xc9 and 0xa6, which XOR to 0x6f. ' +
             'AddRoundKey XORs in a value the mask knows nothing about, so it does not touch the mask ' +
             'at all. The unit suite measures both identities over pseudo-random states rather than ' +
             'asserting them here.'
