@@ -275,6 +275,26 @@ test.describe('Masked AES — the construction tells the truth', () => {
 });
 
 test.describe('The bench — the acts, and what each verdict claims', () => {
+  test('changing settings retires completed and in-flight evidence', async ({ page }) => {
+    await open(page, /The bench/);
+    await page.getByRole('button', { name: /Act 1/ }).click();
+    await runBench(page);
+    await expect(page.locator('#bench-result .verdict-alarm')).toBeVisible();
+
+    await page.selectOption('#bench-protection', 'masked');
+    await expect(page.locator('#bench-result')).toContainText('Retired');
+    await expect(page.locator('#bench-result .verdict-alarm')).toHaveCount(0);
+
+    await page.fill('#bench-traces', '120000');
+    await page.selectOption('#bench-protection', 'none');
+    await page.getByRole('button', { name: 'Run the attack' }).click();
+    await page.selectOption('#bench-protection', 'masked');
+    await expect(page.locator('#bench-result')).toContainText('Retired');
+    await expect(page.getByRole('button', { name: 'Run the attack' })).toBeEnabled();
+    await page.waitForTimeout(100);
+    await expect(page.locator('#bench-result .verdict-alarm')).toHaveCount(0);
+  });
+
   test('Act 1 recovers the key, and the verdict agrees with the readout and the table', async ({ page }) => {
     await open(page, /The bench/);
     await page.getByRole('button', { name: /Act 1/ }).click();

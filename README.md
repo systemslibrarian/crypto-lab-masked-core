@@ -220,7 +220,7 @@ npm run test:claims    # the claims suite: does the page tell the truth?
 
 Vite + TypeScript, no runtime dependencies, static to GitHub Pages.
 
-**Unit suite — 139 tests across 11 files (`npm test`), all passing.**
+**Unit suite — 142 tests across 12 files (`npm test`), all passing.**
 
 | File | What it proves |
 |---|---|

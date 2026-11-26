@@ -113,6 +113,8 @@ export function renderBench(root: HTMLElement): void {
   let keyHex: string = FIXTURE.keyHex;
   let dpaBit: number = FIXTURE.dpaBit;
   let running = false;
+  let runEpoch = 0;
+  let observedFingerprint = '';
 
   const protectionSelect = el('select', {}) as HTMLSelectElement;
   for (const p of ['none', 'masked', 'frozen'] as const) {
@@ -165,6 +167,37 @@ export function renderBench(root: HTMLElement): void {
   const partnerField = el('div', { class: 'field' });
   const bitField = el('div', { class: 'field' });
 
+  function configFingerprint(): string {
+    return JSON.stringify([
+      protection,
+      attack,
+      tracesInput.value,
+      noiseInput.value,
+      keyInput.value,
+      sampleSelect.value,
+      partnerSelect.value,
+      bitSelect.value,
+    ]);
+  }
+
+  function retireChangedConfig(): void {
+    const next = configFingerprint();
+    if (next === observedFingerprint) return;
+    observedFingerprint = next;
+    runEpoch++;
+    running = false;
+    runBtn.disabled = false;
+    sampleWrap.hidden = true;
+    convergeWrap.hidden = true;
+    status.textContent = 'Settings changed. Run the attack again.';
+    replace(
+      resultOut,
+      verdict('info', 'Retired.', [
+        'The previous measurement belonged to different settings, so it has been cleared rather than left beside the new experiment.',
+      ])
+    );
+  }
+
   function syncControls(): void {
     protectionSelect.value = protection;
     attackSelect.value = attack;
@@ -203,6 +236,8 @@ export function renderBench(root: HTMLElement): void {
 
   async function run(): Promise<void> {
     if (running) return;
+    const token = ++runEpoch;
+    observedFingerprint = configFingerprint();
     const keyCheck = validateKeyHex(keyInput.value);
     keyInput.setAttribute('aria-invalid', keyCheck.ok ? 'false' : 'true');
     const traceCheck = validateTraceCount(Number(tracesInput.value));
@@ -228,6 +263,7 @@ export function renderBench(root: HTMLElement): void {
     // ── Per-sample scan: WHERE does it leak? ────────────────────────────────
     status.textContent = `Scanning all ${NUM_SAMPLES} samples over ${num(SCAN_TRACES)} traces…`;
     await nextFrame();
+    if (token !== runEpoch) return;
     const scan = new CpaSampleScan(NUM_SAMPLES);
     new TraceStream(cfg).take(SCAN_TRACES, (p, s) => scan.add(p, s));
     const scanResult = scan.result();
@@ -260,6 +296,7 @@ export function renderBench(root: HTMLElement): void {
       });
       status.textContent = `Running ${ATTACK_LABEL[attack]} — ${num(stream.count)} of ${num(traces)} traces…`;
       await nextFrame();
+      if (token !== runEpoch) return;
     }
 
     let ttd: number | null = null;
@@ -511,20 +548,28 @@ export function renderBench(root: HTMLElement): void {
   runBtn.addEventListener('click', () => void run());
   protectionSelect.addEventListener('change', () => {
     protection = protectionSelect.value as Protection;
+    retireChangedConfig();
   });
   attackSelect.addEventListener('change', () => {
     attack = attackSelect.value as AttackKind;
     syncControls();
+    retireChangedConfig();
   });
   sampleSelect.addEventListener('change', () => {
     targetSample = Number(sampleSelect.value);
+    retireChangedConfig();
   });
   partnerSelect.addEventListener('change', () => {
     partnerSample = Number(partnerSelect.value);
+    retireChangedConfig();
   });
   bitSelect.addEventListener('change', () => {
     dpaBit = Number(bitSelect.value);
+    retireChangedConfig();
   });
+  for (const input of [tracesInput, noiseInput, keyInput]) {
+    input.addEventListener('input', retireChangedConfig);
+  }
 
   const actButtons = el('div', { class: 'seg', role: 'group', 'aria-label': 'Act presets' });
   for (const a of ACTS) {
@@ -541,6 +586,7 @@ export function renderBench(root: HTMLElement): void {
       targetSample = sboxOutSample(FIXTURE.targetByte);
       partnerSample = MASK_OUT_SAMPLE;
       syncControls();
+      retireChangedConfig();
       for (const other of Array.from(actButtons.children)) {
         other.setAttribute('aria-pressed', other === b ? 'true' : 'false');
       }
@@ -626,6 +672,7 @@ export function renderBench(root: HTMLElement): void {
   );
 
   syncControls();
+  observedFingerprint = configFingerprint();
   actButtons.children[0]?.dispatchEvent(new Event('click'));
   replace(
     resultOut,
