@@ -84,7 +84,7 @@ export function renderConstruction(root: HTMLElement): void {
       kv([
         ['Round 1 input mask mIn', hexByte(mIn)],
         ['Round 1 output mask mOut', hexByte(mOut)],
-        ['Table entries rebuilt', '256 — once per round, which is what masking costs'],
+        ['Table entries rebuilt', '256 — once per round in this recomputed-table method'],
       ]),
       scroller(
         'Six entries of the recomputed masked S-box table',
@@ -112,7 +112,7 @@ export function renderConstruction(root: HTMLElement): void {
         mismatches === 0 ? 'Table property holds.' : 'Table property broken.',
         [
           mismatches === 0
-            ? `The last two columns agree on every one of the 256 inputs, not just the six shown. That is the whole trick: feed the table a value masked with mIn and it hands back the S-box output masked with mOut, and the unmasked value x never exists in any register.`
+            ? `The last two columns agree on every one of the 256 inputs, not just the six shown. That is the whole trick: feed the table a value masked with mIn and it hands back the S-box output masked with mOut. This source-level state machine never intentionally stores x before final unmask; it makes no compiler/JIT or physical-register guarantee.`
             : `${mismatches} of 256 entries disagree, so the masked cipher would not produce AES.`,
         ]
       )
@@ -296,8 +296,9 @@ export function renderConstruction(root: HTMLElement): void {
         el(
           'p',
           {},
-          'This lab keeps that as its own named function, `remaskDelta`, precisely so the ordering ' +
-            'cannot be fumbled by an edit. It is a good illustration of why masking is hard to get ' +
+          'This lab keeps that as its own named function, `remaskDelta`, so the intended source-level ' +
+            'ordering is explicit and reviewable. It does not constrain compiler/JIT temporaries or ' +
+            'physical hardware. It is a good illustration of why masking is hard to get ' +
             'right in practice even when the scheme on paper is simple.'
         )
       )
@@ -325,7 +326,7 @@ export function renderConstruction(root: HTMLElement): void {
           'p',
           {},
           'That is the whole reason the S-box needs special treatment and nothing else does — and ' +
-            'the reason masked AES costs roughly what it costs: 256 table writes per round, on top of ' +
+            'the cost of this recomputed-table method: 256 table writes per round, on top of ' +
             'a round that would otherwise be sixteen lookups.'
         )
       )

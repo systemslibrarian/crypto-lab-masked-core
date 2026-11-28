@@ -662,6 +662,7 @@ export function renderBench(root: HTMLElement): void {
           'p',
           {},
           'The second-order attack needs a genuine PAIR: a mask, and a value masked by that same mask. ' +
+            'This simulator exposes their perfectly aligned, known sample positions as an attacker oracle. ' +
             'Try pairing the output mask (5) with an S-box INPUT (8) instead — those are masked with mIn, ' +
             'not mOut — or with an idle cycle, and watch the attack fail. Getting the pair right is most ' +
             'of the work in a real second-order attack, and it is why hiding countermeasures that blur ' +

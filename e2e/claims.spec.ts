@@ -647,6 +647,17 @@ test.describe('Scope — the honesty the rest of the page depends on', () => {
     await expect(panel).toContainText('none is faked');
   });
 
+  test('keeps empirical fixture evidence separate from hardware and proof claims', async ({ page }) => {
+    await open(page, /Scope/);
+    const panel = page.locator('#panel-scope');
+    await expect(panel).toContainText('perfectly aligned, known sample positions');
+    await expect(panel).toContainText('fixture-specific');
+    await expect(panel).toContainText('not a proof of implementation security');
+    await expect(panel).toContainText('correctness, non-completeness, and uniformity or re-masking');
+    await expect(panel).not.toContainText('What transfers is the shape');
+    await expect(panel).not.toContainText('a glitch has nothing to recombine');
+  });
+
   test('the two failures are kept apart as separate claims', async ({ page }) => {
     // The brief is explicit that the frozen-mask result is a lesson about
     // randomness, not about masking, and that the two must not be conflated.

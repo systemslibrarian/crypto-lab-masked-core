@@ -12,9 +12,11 @@
  * The power MODEL is a model: each probed register contributes
  * LEAK_AMP * HW(value) at one sample, on top of a fixed data-independent
  * operation shape and Gaussian measurement noise. What transfers to a real
- * oscilloscope bench is the model's SHAPE (power tracks bits), the statistics,
- * and the trace-count economics between orders. What does NOT transfer is the
- * noise distribution of physical silicon, and — this is the important one —
+ * oscilloscope bench is only the qualitative lesson that modeled register
+ * leakage can be combined at higher order. The peaks, rankings, measured
+ * trace counts, and ratio are fixture-specific; a different leakage function
+ * can change all of them. What does NOT transfer is the noise distribution of
+ * physical silicon, and — this is the important one —
  * glitches, transitions and coupling, which are how real masked hardware leaks
  * at first order despite being provably secure in the probing model. See the
  * Scope panel; none of that is simulated here.

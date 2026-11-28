@@ -56,8 +56,9 @@ function hero(): HTMLElement {
       el('p', {
         class: 'cl-hero-why-text',
         text:
-          'Masking is the countermeasure smartcards, TPMs and secure elements are certified on, and it ' +
-          'is usually described as if it closed the side channel. It does not: it raises the price. ' +
+          'Masking is one widely used side-channel countermeasure assessed in some smartcard and ' +
+          'secure-element evaluations, and it is often described as if it closed the side channel. ' +
+          'It does not: under a stated model it can raise the price. ' +
           'Knowing what that price is — and which two mistakes reduce it to nothing — is the difference ' +
           'between a defence you have deployed and one you are hoping for.',
       })

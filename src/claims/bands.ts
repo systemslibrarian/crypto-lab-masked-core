@@ -170,9 +170,9 @@ export const NON_DISCLOSURE_CLAIMS: readonly NonDisclosureClaim[] = [
  * The thesis, as a number. Second-order recovery must cost at least this many
  * times more traces than the unprotected baseline.
  *
- * More robust than any absolute band, because it survives a change to the noise
- * level: the noise dial moves both counts together and leaves the ratio alone.
- * Measured today at 23208 / 200 = 116x.
+ * A fixture-specific regression floor for this exact seeded leakage function,
+ * noise level, sample pair, and checkpoint schedule. It is not a hardware
+ * estimate and is not claimed to be invariant under a noise change.
  */
 export const COST_RATIO_FLOOR = 20;
 
@@ -227,5 +227,5 @@ export const OUT_OF_MODEL = [
   'Glitches. A scheme proven secure in the probing model can still leak at first order in real hardware, because a combinational glitch can transiently compute a function of both shares at once. This is why threshold implementations exist. No glitch is simulated here.',
   'Transitions and coupling. Real registers leak the Hamming DISTANCE between successive values, and neighbouring wires leak into each other; either can recombine two shares that the probing model treats as separate.',
   'Imperfect randomness short of a frozen mask — a biased or correlated mask generator sits between Act 2 and Act 4 and is not modelled.',
-  'Higher masking orders. Only first-order masking is implemented. A d-th order scheme is attacked at order d+1, and the trace counts grow steeply enough that a browser could not run the demonstration honestly.',
+  'Higher masking orders. Only a two-share first-order teaching construction is implemented. A claimed d-th-order implementation also needs valid gadgets, refreshing and composition assumptions under a stated model; share count alone does not establish the achieved order.',
 ] as const;

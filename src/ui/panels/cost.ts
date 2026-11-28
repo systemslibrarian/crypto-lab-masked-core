@@ -288,10 +288,10 @@ export function renderCost(root: HTMLElement): void {
     ),
     verdict('alarm', `Second order costs about ${Math.round(ratio)} times the unprotected baseline.`, [
       `${num(baseline.measured)} traces against plain AES-128; ${num(second.measured)} traces against the ` +
-        `masked implementation once two samples are combined. That multiplier is the honest summary of ` +
-        `what first-order masking buys, in this leakage model, at this noise level — and the CI gate ` +
-        `requires it to stay above ${COST_RATIO_FLOOR}x, because the ratio survives a change to the noise ` +
-        `dial where the absolute counts do not.`,
+        `masked implementation once the known, perfectly aligned output-mask and masked-output samples ` +
+        `are combined. That multiplier belongs to this leakage function, noise, seed and checkpoint ` +
+        `schedule; the CI gate keeps this exact fixture above ${COST_RATIO_FLOOR}x. It is not claimed ` +
+        `to be noise-invariant or to estimate hardware.`,
     ]),
     chart,
     scroller(

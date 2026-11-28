@@ -18,8 +18,9 @@
  *     S'[a] = SBOX[a ^ mIn] ^ mOut
  *
  * so that S'[x ^ mIn] = SBOX[x] ^ mOut. The lookup converts a value masked with
- * mIn into the S-box output masked with mOut, and x itself never exists in any
- * register.
+ * mIn into the S-box output masked with mOut. In this source-level state
+ * machine, x is never intentionally stored before the final unmask; TypeScript
+ * cannot make a compiler/JIT or physical-register guarantee.
  *
  * THE RULE THAT MAKES IT WORK. No step may ever compute a value that depends on
  * x without a mask on it. Re-masking is where that is easy to get wrong: to move
@@ -27,9 +28,10 @@
  * difference `d = mask[j] ^ mIn` FIRST and then XOR it into the masked state.
  * Writing `state[j] ^ mask[j] ^ mIn` left to right unmasks x for one instruction
  * and hands a first-order probe the plaintext-equivalent value. `remaskDelta`
- * exists to make that ordering explicit and hard to fumble.
+ * exists to make that source-level ordering explicit and easier to review.
  *
- * WHAT THIS IS NOT. First order, one share, one table per round, and a mask
+ * WHAT THIS IS NOT. Two-share, first-order Boolean masking, one table per
+ * round, and a mask
  * drawn from a seeded bench PRNG. It is not a threshold implementation, it does
  * not resist glitches, and the security argument is in the probing model only.
  * See the Scope panel and the README.
@@ -73,8 +75,8 @@ export function drawRoundMasks(source: MaskSource, rng: Rng): RoundMasks {
 /**
  * The recomputed masked S-box: S'[a] = SBOX[a ^ mIn] ^ mOut.
  *
- * Built by walking all 256 entries, which is what a real implementation does
- * once per round (and what makes masking expensive). The table is the object
+ * Built by walking all 256 entries, which is what this table-recomputation
+ * teaching construction does once per round. The table is the object
  * the second-order attack ends up exploiting, because building it puts mOut on
  * a bus of its own.
  */
@@ -90,7 +92,8 @@ export function recomputeSboxTable(mIn: number, mOut: number): Uint8Array {
  * The mask-domain delta that moves byte j from its current mask to `mIn`.
  *
  * Deliberately its own function. It touches only mask material, never the
- * masked state, so no ordering of these operations can transiently unmask x.
+ * masked state. This makes the intended source-level order explicit; it does
+ * not constrain compiler/JIT temporaries or physical hardware.
  */
 export function remaskDelta(currentMask: number, mIn: number): number {
   return (currentMask ^ mIn) & 0xff;
@@ -148,7 +151,9 @@ export function maskedRound(
     mixColumns(state);
     mixColumns(mask);
   }
-  addRoundKey(state, roundKey); // the key is public to the mask; it is not masked
+  // XOR the secret round key into one state share, leaving the state mask
+  // unchanged. The unmasked key schedule itself is outside this teaching model.
+  addRoundKey(state, roundKey);
 
   return { maskIn: masks.mIn, maskOut: masks.mOut, sboxInMasked, sboxOutMasked };
 }

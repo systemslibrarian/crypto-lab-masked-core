@@ -91,8 +91,10 @@ export function renderScope(root: HTMLElement): void {
         'The AES trace bench assumes power draw tracks the HAMMING WEIGHT of the value in a ' +
           'register, plus independent Gaussian noise, and that a probe sees one register at a time. That ' +
           'is the classical first-order probing model with a Hamming-weight leakage function. It is the ' +
-          'model in which first-order Boolean masking is provably secure, and it is the model in which ' +
-          'the AES bench uses. The exact four-share example below uses a separate joint observation with discrete noise.'
+          'model in which first-order Boolean masking is provably secure, and it is the model the AES ' +
+          'bench uses. The simulator also gives the attacker perfectly aligned, known sample positions: ' +
+          'the output-mask register and the masked output. Real attackers may need profiling or a ' +
+          'time-pair search. The exact four-share example below uses a separate joint observation with discrete noise.'
       ),
       el(
         'p',
@@ -118,9 +120,10 @@ export function renderScope(root: HTMLElement): void {
           'it stabilises, and during those transient settlings a gate may briefly compute a function of ' +
           'inputs that arrive at different times — including, in a masked circuit, a function of both ' +
           'shares at once. The proof said no single wire depends on the secret; the glitch does not ' +
-          'respect the boundary the proof drew. This is exactly why threshold implementations exist: ' +
-          'they add a non-completeness property that keeps any share of the circuit independent of at ' +
-          'least one input share, so a glitch has nothing to recombine.'
+          'respect the boundary the proof drew. This is why threshold implementations require ' +
+          'correctness, non-completeness, and uniformity or re-masking under stated composition and ' +
+          'implementation-separation assumptions. Coupling or cross-talk remains outside this model; ' +
+          'non-completeness alone is not a complete hardware-security argument.'
       ),
       verdict('info', 'Not simulated here.', [
         'No glitch, transition or coupling effect is modelled on this page, and none is faked. Inventing ' +
@@ -162,9 +165,10 @@ export function renderScope(root: HTMLElement): void {
         'ul',
         { class: 'scope-list', role: 'list' },
         el('li', { role: 'listitem' },
-          'That masking is broken. Act 3 proves one sentence and nothing wider: first-order Boolean ' +
-            'masking defeats first-order leakage analysis under the modelled assumptions, and does not ' +
-            'protect against higher-order observation. Both halves of that sentence are load-bearing.'
+          'That masking is broken. Act 3 demonstrates one sentence in this seeded simulator: first-order ' +
+            'Boolean masking defeats this first-order leakage analysis under the modelled assumptions, ' +
+            'and does not protect against this known-pair higher-order observation. That empirical result ' +
+            'is not a proof of implementation security.'
         ),
         el('li', { role: 'listitem' },
           `That masking is useless. It multiplied the attacker's trace requirement by more than ` +
@@ -178,8 +182,9 @@ export function renderScope(root: HTMLElement): void {
             `intact, and it is deliberately kept as a separate claim from the second-order result.`
         ),
         el('li', { role: 'listitem' },
-          'That these trace counts transfer to hardware. They are the trace counts of this noise model. ' +
-            'What transfers is the shape: the ratio between orders, and the fact that the ratio is finite.'
+          'That these trace counts or their ratio transfer to hardware. They are fixture-specific to the ' +
+            'leakage function, noise, seed, perfectly aligned known sample pair and checkpoint schedule. ' +
+            'Changing the platform or leakage function can change peaks, rankings and attack economics.'
         ),
         el('li', { role: 'listitem' },
           'Resistance of AES masking orders above one. The AES bench implements first-order masking ' +

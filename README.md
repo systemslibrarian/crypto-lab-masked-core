@@ -109,20 +109,25 @@ disclosures so a newcomer can skip them and an expert can check them.
 
 ## When to Use It
 
-- **To understand why masking is deployed** — it is the countermeasure smartcards, TPMs and
-  secure elements are certified on, and Act 3 shows precisely what it buys: a large,
-  finite, measurable increase in the attacker's trace budget.
+- **To understand why masking is deployed** — it is a widely used side-channel
+  countermeasure assessed in some smartcard and secure-element evaluations. Act 3
+  measures its cost only in this synthetic fixture.
 - **To understand why masking is hard to get right** — the re-masking ordering trap and the
   frozen-mask act are both failures that leave the countermeasure looking perfect in code
   review and in a correctness test.
-- **To calibrate an intuition about attack orders** — a `d`-th order scheme needs an
-  order-`(d+1)` attack, and this lab measures the 1-versus-2 step honestly.
+- **To calibrate an intuition about attack orders** — under this stated model, the lab
+  measures one 1-versus-2 step. A share count alone does not establish a protection order;
+  gadgets, refreshing and composition assumptions matter too.
 - **Do NOT use this code in anything that protects a secret.** The AES here is a teaching
-  implementation with data-dependent table lookups (a timing side channel of its own), the
-  masks come from a seeded non-cryptographic PRNG, and the masking is first-order only with
-  no glitch resistance. It is written to be read, not deployed.
-- **Do NOT read the trace counts as hardware numbers.** They are the trace counts of this
-  noise model. What transfers is the ratio between orders, and the fact that it is finite.
+  implementation with data-dependent table lookups (a timing side channel of its own), an
+  unmasked key schedule and raw key storage, masks from a seeded non-cryptographic PRNG,
+  and no glitch resistance. It is a masked round-state/data-path demonstration written to
+  be read, not a fully masked implementation to deploy.
+- **Do NOT read the trace counts or their ratio as hardware numbers.** The measured 116x
+  ratio belongs to this leakage function, noise, seed, known aligned sample pair and
+  checkpoint schedule. A different platform or leakage function can change the peaks,
+  rankings and attack economics. The transferable lesson is only qualitative: combining
+  shares can recover information and often costs more under stated assumptions.
 
 ## Live Demo
 
@@ -139,8 +144,8 @@ countermeasure stops protecting anything.
 
 - **Higher-order observation.** This is the headline. First-order masking defeats
   first-order leakage analysis under the modelled assumptions, and does not protect against
-  an attacker who can combine two samples. Act 3 proves exactly that sentence and nothing
-  broader.
+  an attacker who can combine two samples. Act 3 demonstrates that sentence in the seeded
+  simulator; it does not prove implementation security.
 - **Broken randomness.** Act 4. Freeze the mask to a constant — an RNG that was never
   seeded, a mask computed once at boot, a test harness left in a shipping build — and the
   masked value becomes a deterministic function of the unmasked one. Every line of the
